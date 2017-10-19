@@ -43,6 +43,7 @@
 #if HAL_WITH_UAVCAN
 #include "AP_Baro_UAVCAN.h"
 #endif
+#include "AP_Baro_Empty.h"
 
 #define INTERNAL_TEMPERATURE_CLAMP 35.0f
 
@@ -568,6 +569,9 @@ void AP_Baro::init(void)
 #elif HAL_BARO_DEFAULT == HAL_BARO_LPS22H_SPI
     ADD_BACKEND(AP_Baro_LPS2XH::probe(*this,
                                       std::move(hal.spi->get_device(HAL_BARO_LPS22H_NAME))));
+#elif HAL_BARO_DEFAULT == HAL_BARO_EMPTY
+    drivers[0] = new AP_Baro_Empty(*this);
+    _num_drivers = 1;
 #endif
 
 #if defined(BOARD_I2C_BUS_EXT) && CONFIG_HAL_BOARD == HAL_BOARD_F4LIGHT

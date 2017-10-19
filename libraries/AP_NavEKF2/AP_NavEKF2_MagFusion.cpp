@@ -809,19 +809,21 @@ void NavEKF2_core::fuseEulerYaw()
         Vector3f euler321;
         stateStruct.quat.to_euler(euler321.x, euler321.y, euler321.z);
         predicted_yaw = euler321.z;
-        if (use_compass() && yawAlignComplete && magStateInitComplete) {
-            // Use measured mag components rotated into earth frame to measure yaw
-            Tbn_zeroYaw.from_euler(euler321.x, euler321.y, 0.0f);
-            Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
-            measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
-        } else if (extNavUsedForYaw) {
-            // Get the yaw angle  from the external vision data
-            extNavDataDelayed.quat.to_euler(euler321.x, euler321.y, euler321.z);
-            measured_yaw =  euler321.z;
-        } else {
-            // no data so use predicted to prevent unconstrained variance growth
-            measured_yaw = predicted_yaw;
-        }
+//        if (use_compass() && yawAlignComplete && magStateInitComplete) {
+//            // Use measured mag components rotated into earth frame to measure yaw
+//            Tbn_zeroYaw.from_euler(euler321.x, euler321.y, 0.0f);
+//            Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
+//            measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
+//        } else if (extNavUsedForYaw) {
+//            // Get the yaw angle  from the external vision data
+//            extNavDataDelayed.quat.to_euler(euler321.x, euler321.y, euler321.z);
+//            measured_yaw =  euler321.z;
+//        } else {
+//            // no data so use predicted to prevent unconstrained variance growth
+//            measured_yaw = predicted_yaw;
+//        }
+
+
     } else {
         // calculate observaton jacobian when we are observing a rotation in a 312 sequence
         float t2 = q0*q0;
@@ -855,19 +857,32 @@ void NavEKF2_core::fuseEulerYaw()
         // calculate predicted and measured yaw angle
         Vector3f euler312 = stateStruct.quat.to_vector312();
         predicted_yaw = euler312.z;
-        if (use_compass() && yawAlignComplete && magStateInitComplete) {
-            // Use measured mag components rotated into earth frame to measure yaw
-            Tbn_zeroYaw.from_euler312(euler312.x, euler312.y, 0.0f);
-            Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
-            measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
-        } else if (extNavUsedForYaw) {
-            // Get the yaw angle  from the external vision data
-            euler312 = extNavDataDelayed.quat.to_vector312();
-            measured_yaw =  euler312.z;
-        } else {
-            // no data so use predicted to prevent unconstrained variance growth
-            measured_yaw = predicted_yaw;
-        }
+//        if (use_compass() && yawAlignComplete && magStateInitComplete) {
+//            // Use measured mag components rotated into earth frame to measure yaw
+//            Tbn_zeroYaw.from_euler312(euler312.x, euler312.y, 0.0f);
+//            Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
+//            measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
+//        } else if (extNavUsedForYaw) {
+//            // Get the yaw angle  from the external vision data
+//            euler312 = extNavDataDelayed.quat.to_vector312();
+//            measured_yaw =  euler312.z;
+//        } else {
+//            // no data so use predicted to prevent unconstrained variance growth
+//            measured_yaw = predicted_yaw;
+//        }
+    }
+
+    float speed = sqrtf(sq(stateStruct.velocity[0]) + sq(stateStruct.velocity[1]));
+    float angle = atan2f(stateStruct.velocity[1], stateStruct.velocity[0]);
+
+
+    printf("s: %f a: %f p: %f\n", speed, angle, predicted_yaw);
+
+
+    if(speed > 1) {
+    	measured_yaw = angle;
+    } else {
+    	measured_yaw = predicted_yaw;
     }
 
     // Calculate the innovation
