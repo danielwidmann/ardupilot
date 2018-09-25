@@ -93,7 +93,7 @@ void Scheduler::init()
     } sched_table[] = {
         SCHED_THREAD(timer, TIMER),
         SCHED_THREAD(uart, UART),
-        SCHED_THREAD(rcin, RCIN),
+        //SCHED_THREAD(rcin, RCIN),
         SCHED_THREAD(io, IO),
     };
 

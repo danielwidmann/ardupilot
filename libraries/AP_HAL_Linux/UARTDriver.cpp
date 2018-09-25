@@ -138,7 +138,7 @@ AP_HAL::OwnPtr<SerialDevice> UARTDriver::_parseDevicePath(const char *arg)
 {
     struct stat st;
 
-    if (stat(arg, &st) == 0 && S_ISCHR(st.st_mode)) {
+    if (stat(arg, &st) == 0 && (S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISLNK(st.st_mode))) {
         return AP_HAL::OwnPtr<SerialDevice>(new UARTDevice(arg));
     } else if (strncmp(arg, "tcp:", 4) != 0 &&
                strncmp(arg, "udp:", 4) != 0 &&
