@@ -38,6 +38,7 @@
 #include "RCOutput_PRU.h"
 #include "RCOutput_Sysfs.h"
 #include "RCOutput_ZYNQ.h"
+#include "RCOutput_Serial_Arduino.h"
 #include "SPIDevice.h"
 #include "SPIUARTDriver.h"
 #include "Scheduler.h"
@@ -92,7 +93,8 @@ static AnalogIn_ADS1115 analogIn;
 static AnalogIn_IIO analogIn;
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2 || \
       CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_EDGE
-static AnalogIn_Navio2 analogIn;
+//static AnalogIn_Navio2 analogIn;
+static Empty::AnalogIn analogIn;
 #else
 static Empty::AnalogIn analogIn;
 #endif
@@ -155,7 +157,7 @@ static RCInput_Multi rcinDriver{2, new RCInput_SBUS, new RCInput_115200("/dev/ua
 static RCInput_SoloLink rcinDriver;
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2 || \
       CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_EDGE
-static RCInput_Navio2 rcinDriver;
+static Empty::RCInput rcinDriver;
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_RST_ZYNQ
 static RCInput_SBUS rcinDriver;
 #else
@@ -191,7 +193,8 @@ static RCOutput_Bebop rcoutDriver(i2c_mgr_instance.get_device(HAL_RCOUT_BEBOP_BL
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_DISCO
 static RCOutput_Disco rcoutDriver(i2c_mgr_instance.get_device(HAL_RCOUT_DISCO_BLDC_I2C_BUS, HAL_RCOUT_DISCO_BLDC_I2C_ADDR));
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
-static RCOutput_Sysfs rcoutDriver(0, 0, 14);
+//static RCOutput_Sysfs rcoutDriver(0, 0, 14);
+static RCOutput_Serial_Arduino rcoutDriver;
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_AERO
 static ap::RCOutput_Tap rcoutDriver;
 #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_EDGE
