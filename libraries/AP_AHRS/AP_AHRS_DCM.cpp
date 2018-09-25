@@ -27,7 +27,7 @@ extern const AP_HAL::HAL& hal;
 
 // this is the speed in m/s above which we first get a yaw lock with
 // the GPS
-#define GPS_SPEED_MIN 3
+#define GPS_SPEED_MIN 0.3
 
 // the limit (in degrees/second) beyond which we stop integrating
 // omega_I. At larger spin rates the DCM PI controller can get 'dizzy'
@@ -398,6 +398,8 @@ bool AP_AHRS_DCM::use_fast_gains(void) const
 // return true if we should use the compass for yaw correction
 bool AP_AHRS_DCM::use_compass(void)
 {
+	return false;
+
     if (!_compass || !_compass->use_for_yaw()) {
         // no compass available
         return false;
