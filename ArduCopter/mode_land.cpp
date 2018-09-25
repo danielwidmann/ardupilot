@@ -19,8 +19,8 @@ bool Copter::ModeLand::init(bool ignore_checks)
     }
 
     // initialize vertical speeds and leash lengths
-    pos_control->set_speed_z(wp_nav->get_speed_down(), wp_nav->get_speed_up());
-    pos_control->set_accel_z(wp_nav->get_accel_z());
+    pos_control->set_max_speed_z(wp_nav->get_speed_down(), wp_nav->get_speed_up());
+    pos_control->set_max_accel_z(wp_nav->get_accel_z());
 
     // initialise position and desired velocity
     if (!pos_control->is_active_z()) {
@@ -57,6 +57,7 @@ void Copter::ModeLand::gps_run()
     // if not auto armed or landed or motor interlock not enabled set throttle to zero and exit immediately
     if (!motors->armed() || !ap.auto_armed || ap.land_complete || !motors->get_interlock()) {
         zero_throttle_and_relax_ac();
+        loiter_nav->clear_pilot_desired_acceleration();
         loiter_nav->init_target();
 
         // disarm when the landing detector says we've landed

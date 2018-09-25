@@ -390,7 +390,9 @@ def _build_recursion(bld):
         common_dirs_patterns,
         excl=common_dirs_excl,
     )
-
+    if bld.env.IOMCU_FW is not None:
+        if bld.env.IOMCU_FW:
+            dirs_to_recurse.append('libraries/AP_IOMCU/iofirmware')
     for p in hal_dirs_patterns:
         dirs_to_recurse += collect_dirs_to_recurse(
             bld,
@@ -466,7 +468,7 @@ ardupilotwaf.build_command('check-all',
     doc='shortcut for `waf check --alltests`',
 )
 
-for name in ('antennatracker', 'copter', 'heli', 'plane', 'rover', 'sub', 'bootloader'):
+for name in ('antennatracker', 'copter', 'heli', 'plane', 'rover', 'sub', 'bootloader','iofirmware'):
     ardupilotwaf.build_command(name,
         program_group_list=name,
         doc='builds %s programs' % name,

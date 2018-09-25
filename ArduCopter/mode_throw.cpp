@@ -56,8 +56,8 @@ void Copter::ModeThrow::run()
 
         // initialize vertical speed and acceleration limits
         // use brake mode values for rapid response
-        pos_control->set_speed_z(BRAKE_MODE_SPEED_Z, BRAKE_MODE_SPEED_Z);
-        pos_control->set_accel_z(BRAKE_MODE_DECEL_RATE);
+        pos_control->set_max_speed_z(BRAKE_MODE_SPEED_Z, BRAKE_MODE_SPEED_Z);
+        pos_control->set_max_accel_z(BRAKE_MODE_DECEL_RATE);
 
         // initialise the demanded height to 3m above the throw height
         // we want to rapidly clear surrounding obstacles
@@ -79,6 +79,7 @@ void Copter::ModeThrow::run()
         stage = Throw_PosHold;
 
         // initialise the loiter target to the curent position and velocity
+        loiter_nav->clear_pilot_desired_acceleration();
         loiter_nav->init_target();
 
         // Set the auto_arm status to true to avoid a possible automatic disarm caused by selection of an auto mode with throttle at minimum

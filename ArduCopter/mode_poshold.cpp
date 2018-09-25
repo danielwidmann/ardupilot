@@ -78,8 +78,8 @@ bool Copter::ModePosHold::init(bool ignore_checks)
     }
     
     // initialize vertical speeds and acceleration
-    pos_control->set_speed_z(-get_pilot_speed_dn(), g.pilot_speed_up);
-    pos_control->set_accel_z(g.pilot_accel_z);
+    pos_control->set_max_speed_z(-get_pilot_speed_dn(), g.pilot_speed_up);
+    pos_control->set_max_accel_z(g.pilot_accel_z);
 
     // initialise position and desired velocity
     if (!pos_control->is_active_z()) {
@@ -100,6 +100,7 @@ bool Copter::ModePosHold::init(bool ignore_checks)
         poshold.pitch_mode = POSHOLD_LOITER;
         // set target to current position
         // only init here as we can switch to PosHold in flight with a velocity <> 0 that will be used as _last_vel in PosControl and never updated again as we inhibit Reset_I
+        loiter_nav->clear_pilot_desired_acceleration();
         loiter_nav->init_target();
     }else{
         // if not landed start in pilot override to avoid hard twitch
@@ -131,8 +132,9 @@ void Copter::ModePosHold::run()
     const Vector3f& vel = inertial_nav.get_velocity();
 
     // initialize vertical speeds and acceleration
-    pos_control->set_speed_z(-get_pilot_speed_dn(), g.pilot_speed_up);
-    pos_control->set_accel_z(g.pilot_accel_z);
+    pos_control->set_max_speed_z(-get_pilot_speed_dn(), g.pilot_speed_up);
+    pos_control->set_max_accel_z(g.pilot_accel_z);
+    loiter_nav->clear_pilot_desired_acceleration();
 
     // if not auto armed or motor interlock not enabled set throttle to zero and exit immediately
     if (!motors->armed() || !ap.auto_armed || !motors->get_interlock()) {
