@@ -158,12 +158,32 @@ void Rover::update_optical_flow(void)
 
     // write to log and send to EKF if new data has arrived
     if (optflow.last_update() != last_of_update) {
+        uint32_t time_delta_ms = optflow.last_update() - last_of_update;
         last_of_update = optflow.last_update();
-        uint8_t flowQuality = optflow.quality();
         Vector2f flowRate = optflow.flowRate();
-        Vector2f bodyRate = optflow.bodyRate();
         const Vector3f &posOffset = optflow.get_pos_offset();
-        ahrs.writeOptFlowMeas(flowQuality, flowRate, bodyRate, last_of_update, posOffset);
+
+        // optical flow measurements are in rad. Visual Odometry expects position changes in meters.
+        // todo: use a height parameter to do conversion.
+        const float scale_factor = 1f / 2000f;
+
+        // Optical flow measures rotation. Rotating around the x-axis means movement on the y axis. And vice versa.
+        float d_x = flowRate.y * scale_factor;
+        float d_y = flowRate.x * scale_factor;
+
+        // todo: don't do this for omni-directional vehicles.
+        // No sideway movement expected for most rovers.
+        d_y = 0;
+
+        const float time_delta_sec = time_delta_ms / 1000.0f;
+
+        ahrs.writeBodyFrameOdom(0.5, // confidence
+                                Vector3f(d_x, d_y , 0),
+                                Vector3f(0,0,0) ,// (currently angles are not fuesed yet)
+                                time_delta_sec,
+                                optflow.last_update(),
+                                posOffset);
+
         if (g.log_bitmask & MASK_LOG_OPTFLOW) {
             Log_Write_Optflow();
         }
