@@ -54,7 +54,7 @@ public:
     // raw - returns the raw movement from the sensor
     const Vector2f& flowRate() const { return _state.flowRate; }
 
-    // velocity - returns the velocity in m/s
+    // sensor rotation - returns the rotation rate of the OF sensor (gyro values)
     const Vector2f& bodyRate() const { return _state.bodyRate; }
 
     // device_id - returns device id
