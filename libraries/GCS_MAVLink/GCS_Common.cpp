@@ -1476,6 +1476,7 @@ void GCS_MAVLINK::send_opticalflow(const OpticalFlow &optflow)
     // get rates from sensor
     const Vector2f &flowRate = optflow.flowRate();
     const Vector2f &bodyRate = optflow.bodyRate();
+    const Vector2f compensatedRate = flowRate - bodyRate;
 
     const AP_AHRS &ahrs = AP::ahrs();
     float hagl = 0;
@@ -1492,8 +1493,8 @@ void GCS_MAVLINK::send_opticalflow(const OpticalFlow &optflow)
         0, // sensor id is zero
         flowRate.x,
         flowRate.y,
-        bodyRate.x,
-        bodyRate.y,
+		compensatedRate.x,
+		compensatedRate.y,
         optflow.quality(),
         hagl,  // ground distance (in meters) set to zero
         flowRate.x,
