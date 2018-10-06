@@ -165,7 +165,7 @@ void Rover::update_optical_flow(void)
 
         // optical flow measurements are in rad. Visual Odometry expects position changes in meters.
         // todo: use a height parameter to do conversion.
-        const float scale_factor = 1.0f / 2000.0f;
+        const float scale_factor = 0.12f * (1.0f / 30.0f);
 
         // Optical flow measures rotation. Rotating around the x-axis means movement on the y axis. And vice versa.
         float d_x = flowRate.y * scale_factor;
