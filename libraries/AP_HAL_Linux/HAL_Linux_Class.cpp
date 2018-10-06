@@ -19,6 +19,7 @@
 #include "GPIO.h"
 #include "I2CDevice.h"
 #include "OpticalFlow_Onboard.h"
+#include "OpticalFlow_RaspberryPi.h"
 #include "RCInput.h"
 #include "RCInput_AioPRU.h"
 #include "RCInput_Navio2.h"
@@ -209,6 +210,8 @@ static Scheduler schedulerInstance;
 
 #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BEBOP
 static OpticalFlow_Onboard opticalFlow;
+#elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
+static OpticalFlow_RaspberryPi opticalFlow;
 #else
 static Empty::OpticalFlow opticalFlow;
 #endif
