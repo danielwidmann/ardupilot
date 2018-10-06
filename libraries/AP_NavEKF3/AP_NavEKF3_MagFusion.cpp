@@ -865,10 +865,10 @@ void NavEKF3_core::fuseEulerYaw()
 
     float ground = sqrtf(sq(stateStruct.velocity.x) + sq(stateStruct.velocity.y));
 
-    printf("s: %f gs: %f a: %f p: %f\n", speed, ground, angle, predicted_yaw);
 
 
     if(speed > 0.15 && ground > 0.15) {
+    	printf("s: %f gs: %f a: %f p: %f\n", speed, ground, angle, predicted_yaw);
     	measured_yaw = angle;
     } else {
     	measured_yaw = predicted_yaw;

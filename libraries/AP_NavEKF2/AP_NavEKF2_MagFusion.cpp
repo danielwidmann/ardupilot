@@ -882,7 +882,7 @@ void NavEKF2_core::fuseEulerYaw()
     float angle = atan2f(speed_y, speed_x);
 
 
-    printf("s: %f a: %f p: %f\n", speed, angle, predicted_yaw);
+    //printf("s: %f a: %f p: %f\n", speed, angle, predicted_yaw);
 
 
     if(speed > 0.2) {
