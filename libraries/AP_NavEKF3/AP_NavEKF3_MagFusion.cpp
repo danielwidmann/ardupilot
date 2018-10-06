@@ -249,7 +249,7 @@ void NavEKF3_core::SelectMagFusion()
     bool dataReady = (magDataToFuse && statesInitialised && use_compass() && yawAlignComplete);
     if (dataReady) {
         // use the simple method of declination to maintain heading if we cannot use the magnetic field states
-        if(inhibitMagStates || magStateResetRequest || !magStateInitComplete) {
+        if(inhibitMagStates || magStateResetRequest || !magStateInitComplete || true) {
             fuseEulerYaw();
             // zero the test ratio output from the inactive 3-axis magnetometer fusion
             magTestRatio.zero();
@@ -739,6 +739,7 @@ void NavEKF3_core::FuseMagnetometer()
     }
 }
 
+#include "stdio.h"
 
 /*
  * Fuse magnetic heading measurement using explicit algebraic equations generated with Matlab symbolic toolbox.
@@ -843,16 +844,34 @@ void NavEKF3_core::fuseEulerYaw()
     }
 
     // rotate measured mag components into earth frame
-    Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
+   // Vector3f magMeasNED = Tbn_zeroYaw*magDataDelayed.mag;
 
     // Use the difference between the horizontal projection and declination to give the measured yaw
     // If we can't use compass data, set the  measurement to the predicted
     // to prevent uncontrolled variance growth whilst on ground without magnetometer
     float measured_yaw;
-    if (use_compass() && yawAlignComplete) {
-        measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
+//    if (use_compass() && yawAlignComplete) {
+//        measured_yaw = wrap_PI(-atan2f(magMeasNED.y, magMeasNED.x) + _ahrs->get_compass()->get_declination());
+//    } else {
+//        measured_yaw = predicted_yaw;
+//    }
+
+
+    float speed_x = gpsDataDelayed.vel.x;
+    float speed_y = gpsDataDelayed.vel.y;
+    float speed = sqrtf(sq(speed_x) + sq(speed_y));
+    float angle = atan2f(speed_y, speed_x);
+
+
+    float ground = sqrtf(sq(stateStruct.velocity.x) + sq(stateStruct.velocity.y));
+
+    printf("s: %f gs: %f a: %f p: %f\n", speed, ground, angle, predicted_yaw);
+
+
+    if(speed > 0.15 && ground > 0.15) {
+    	measured_yaw = angle;
     } else {
-        measured_yaw = predicted_yaw;
+    	measured_yaw = predicted_yaw;
     }
 
     // Calculate the innovation

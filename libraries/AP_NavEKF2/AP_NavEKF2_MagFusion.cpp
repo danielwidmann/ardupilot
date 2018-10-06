@@ -872,14 +872,20 @@ void NavEKF2_core::fuseEulerYaw()
 //        }
     }
 
-    float speed = sqrtf(sq(stateStruct.velocity[0]) + sq(stateStruct.velocity[1]));
-    float angle = atan2f(stateStruct.velocity[1], stateStruct.velocity[0]);
+
+    //sq(gpsDataDelayed.vel.x) + sq(gpsDataDelayed.vel.y)
+    //stateStruct.velocity[0] stateStruct.velocity[1]
+
+    float speed_x = gpsDataDelayed.vel.x;
+    float speed_y = gpsDataDelayed.vel.y;
+    float speed = sqrtf(sq(speed_x) + sq(speed_y));
+    float angle = atan2f(speed_y, speed_x);
 
 
     printf("s: %f a: %f p: %f\n", speed, angle, predicted_yaw);
 
 
-    if(speed > 1) {
+    if(speed > 0.2) {
     	measured_yaw = angle;
     } else {
     	measured_yaw = predicted_yaw;
