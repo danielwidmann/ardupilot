@@ -513,10 +513,12 @@ void NavEKF3_core::recordYawReset()
 void NavEKF3_core::checkGyroCalStatus(void)
 {
     // check delta angle bias variances
-    const float delAngBiasVarMax = sq(radians(0.15f * dtEkfAvg));
-    delAngBiasLearned = (P[10][10] <= delAngBiasVarMax) &&
-                        (P[11][11] <= delAngBiasVarMax) &&
-                        (P[12][12] <= delAngBiasVarMax);
+//    const float delAngBiasVarMax = sq(radians(0.15f * dtEkfAvg));
+//    delAngBiasLearned = (P[10][10] <= delAngBiasVarMax) &&
+//                        (P[11][11] <= delAngBiasVarMax) &&
+//                        (P[12][12] <= delAngBiasVarMax);
+    delAngBiasLearned = true;
+
 }
 
 // Commands the EKF to not use GPS.
