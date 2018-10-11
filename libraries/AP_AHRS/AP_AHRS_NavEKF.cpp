@@ -567,11 +567,22 @@ bool AP_AHRS_NavEKF::get_secondary_position(struct Location &loc) const
         return true;
     }
 }
+#include "stdio.h"
 
 // EKF has a better ground speed vector estimate
 Vector2f AP_AHRS_NavEKF::groundspeed_vector(void)
 {
     Vector3f vec;
+
+    uint16_t ekf3_faults;
+	EKF3.getFilterFaults(-1,ekf3_faults);
+
+	nav_filter_status filt_state;
+	EKF3.getFilterStatus(-1,filt_state);
+
+	//EKF3.core[0].
+
+    printf("ekf: %d, healthy: %d, filter faults: %d, fly forwd %d, use gps: %d\n", active_EKF_type(), EKF3.healthy(), (int)ekf3_faults, _flags.fly_forward, filt_state.flags.using_gps);
 
     switch (active_EKF_type()) {
     case EKF_TYPE_NONE:
@@ -1032,6 +1043,7 @@ AP_AHRS_NavEKF::EKF_TYPE AP_AHRS_NavEKF::active_EKF_type(void) const
             // plane and rover would prefer to use the GPS position from
             // DCM. This is a safety net while some issues with the EKF
             // get sorted out
+        	printf("not_using_gps\n");
             return EKF_TYPE_NONE;
         }
         if (hal.util->get_soft_armed() && filt_state.flags.const_pos_mode) {
@@ -1040,6 +1052,7 @@ AP_AHRS_NavEKF::EKF_TYPE AP_AHRS_NavEKF::active_EKF_type(void) const
         if (!filt_state.flags.attitude ||
             !filt_state.flags.vert_vel ||
             !filt_state.flags.vert_pos) {
+        	printf("filter state att vert\n");
             return EKF_TYPE_NONE;
         }
         if (!filt_state.flags.horiz_vel ||
@@ -1055,8 +1068,12 @@ AP_AHRS_NavEKF::EKF_TYPE AP_AHRS_NavEKF::active_EKF_type(void) const
                 */
                 if (filt_state.flags.gps_quality_good) {
                     return ret;
+                } else {
+                	printf("bad gps\n");
                 }
             }
+
+            printf("no horizontal pos vel\n");
             return EKF_TYPE_NONE;
         }
     }
