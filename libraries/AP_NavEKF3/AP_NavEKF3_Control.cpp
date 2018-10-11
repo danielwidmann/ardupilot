@@ -395,9 +395,15 @@ void NavEKF3_core::checkAttitudeAlignmentStatus()
         }
     }
 
-    // submit yaw and magnetic field reset request
-    if (!yawAlignComplete && tiltAlignComplete && use_compass()) {
+    // submit yaw and magnetic field reset requests depending on whether we have compass data
+    if (tiltAlignComplete && !yawAlignComplete) {
+        if (use_compass()) {
             magYawResetRequest = true;
+            gpsYawResetRequest = false;
+        } else {
+            magYawResetRequest = false;
+            gpsYawResetRequest = true;
+        }
     }
 }
 
