@@ -56,6 +56,7 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AP_Baro,             &rover.barometer,        update,         10,  200),
     SCHED_TASK_CLASS(AP_Beacon,           &rover.g2.beacon,        update,         50,  200),
     SCHED_TASK_CLASS(AP_Proximity,        &rover.g2.proximity,     update,         50,  200),
+    SCHED_TASK_CLASS(AP_WindVane,         &rover.g2.windvane,      update,         20,  100),
     SCHED_TASK(update_visual_odom,     50,    200),
     SCHED_TASK(update_wheel_encoder,   50,    200),
     SCHED_TASK(update_compass,         10,    200),
@@ -184,6 +185,7 @@ void Rover::ahrs_update()
 
     if (should_log(MASK_LOG_ATTITUDE_FAST)) {
         Log_Write_Attitude();
+        Log_Write_Sail();
     }
 
     if (should_log(MASK_LOG_IMU)) {
@@ -222,6 +224,7 @@ void Rover::update_logging1(void)
 {
     if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_ATTITUDE_FAST)) {
         Log_Write_Attitude();
+        Log_Write_Sail();
     }
 
     if (should_log(MASK_LOG_THR)) {
