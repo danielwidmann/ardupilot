@@ -14,7 +14,14 @@ class RCOutput_Serial_Arduino : public AP_HAL::RCOutput {
     void     cork(void) override {}
     void     push(void) override {}
 
+	virtual bool force_safety_on(void);
+
+
+     virtual void     force_safety_off(void);
+
 private:
     static const uint8_t channel_count = 12;
     uint16_t period[channel_count];
+
+    void update();
 };
