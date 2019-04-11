@@ -140,6 +140,11 @@ void RCOutput_Serial_Arduino::write(uint8_t ch, uint16_t period_us) {
 
 	period[ch] = period_us;
 
+	if(ch == 0) {
+		float normalized = (period_us - 1500) / 400.0;
+		get_odrive().set_output(0, normalized);
+	}
+
 	static int counter = 0;
 
 	if (counter++ > 8) {
@@ -148,7 +153,8 @@ void RCOutput_Serial_Arduino::write(uint8_t ch, uint16_t period_us) {
 		return;
 	}
 
-	update();
+	//update();
+	get_odrive().update();
 }
 
 uint16_t RCOutput_Serial_Arduino::read(uint8_t ch) {
@@ -163,4 +169,97 @@ void RCOutput_Serial_Arduino::read(uint16_t* period_us, uint8_t len) {
 		period_us[i] = read(i);
 	}
 }
+
+
+// odrive
+
+void Odrive::enable() {
+	printf("enable\n");
+
+	// clear errors
+	hal.uartF->printf("\n");
+	hal.uartF->printf("w axis0.motor.error 0\n");
+	hal.uartF->printf("w axis0.error 0\n");
+
+	// start closed loop controlodrv0.axis0.error
+	hal.uartF->printf("w axis0.requested_state 8\n");
+}
+
+void Odrive::disable() {
+	printf("disable motors\n");
+	hal.uartF->printf("\n");
+
+	// go to idle mode
+	hal.uartF->printf("w axis0.requested_state 1\n");
+}
+
+void Odrive::update() {
+	float normalized = _motor_states[0].output;//(period[0] - 1500) / 400.0;
+	float maxSpeed = 30;
+
+	int armed = hal.util->get_soft_armed() ? 1 : 0;
+	static int lastArmed = 2;
+
+	if (armed != lastArmed) {
+		if (armed == 1)
+			enable();
+		else
+			disable();
+	}
+
+	lastArmed = armed;
+
+	// update motor speeds
+	hal.uartF->printf("v 0 %f\n", normalized * maxSpeed);
+
+	//period[2]
+
+	// read encoder feedback
+	hal.uartF->printf("f 0\n");
+	char buffer[40];
+	memset(buffer, 0, sizeof(buffer));
+	char* current = buffer;
+	while (true) {
+		int value = hal.uartF->read();
+		*(current++) = value;
+		if (value == '\n' || current >= &buffer[sizeof(buffer) - 2])
+			break;
+	}
+
+	char * s1 = strtok(buffer, " ");
+	char * s2 = strtok(NULL, " ");
+
+	if (s1 == NULL || s2 == NULL)
+		return;
+	//*s1 = '\0';
+	float pos = atof(s1);
+	float speed = atof(s2);
+
+	(void) pos;
+	(void) speed;
+
+	_motor_states[0].position = pos;
+	_motor_states[0].speed = speed;
+
+	//printf("%s %f %f\n", buffer, pos, speed);
+
+	static int counter = 0;
+
+	if (counter++ > 100) {
+		counter = 0;
+		printf("v 0 %f\n", normalized * maxSpeed);
+		printf("%s %f %f\n", buffer, pos, speed);
+	}
+
+}
+
+static Odrive odriveInstance;
+
+
+
+Odrive &get_odrive()
+{
+    return odriveInstance;
+}
+
 

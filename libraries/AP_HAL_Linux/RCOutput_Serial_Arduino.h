@@ -25,3 +25,27 @@ private:
 
     void update();
 };
+
+struct Odrive_Axis_State {
+	float output;
+	float position;
+	float speed;
+};
+
+
+
+class Odrive {
+public:
+	inline void get_encoder(int axis, float* position, float* speed) { *position = _motor_states[axis].position; *speed = _motor_states[axis].speed;}
+	inline void set_output(int axis, float value) { _motor_states[axis].output = value; }
+	void update();
+	//void init();
+
+private:
+	struct Odrive_Axis_State _motor_states[2];
+
+	void enable();
+	void disable();
+};
+
+Odrive &get_odrive();

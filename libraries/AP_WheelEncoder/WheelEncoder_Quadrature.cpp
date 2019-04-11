@@ -16,9 +16,11 @@
 #include <AP_HAL/AP_HAL.h>
 
 #include "WheelEncoder_Quadrature.h"
-
+#include "stdio.h"
 #include <GCS_MAVLink/GCS.h>
 
+
+#include "AP_HAL_Linux/RCOutput_Serial_Arduino.h"
 extern const AP_HAL::HAL& hal;
 
 // constructor
@@ -71,11 +73,25 @@ void AP_WheelEncoder_Quadrature::update(void)
     // disable interrupts to prevent race with irq_handler
     void *irqstate = hal.scheduler->disable_interrupts_save();
 
-    // copy distance and error count so it is accessible to front end
-    copy_state_to_frontend(irq_state.distance_count,
-                           irq_state.total_count,
-                           irq_state.error_count,
-                           irq_state.last_reading_ms);
+
+
+//    // copy distance and error count so it is accessible to front end
+//    copy_state_to_frontend(irq_state.distance_count,
+//                           irq_state.total_count,
+//                           irq_state.error_count,
+//                           irq_state.last_reading_ms);
+
+
+    	float pos, speed;
+    	get_odrive().get_encoder(0, &pos, &speed);
+
+    	//printf("p: %f\n", pos);
+
+        copy_state_to_frontend((int) pos,
+        						0,
+                               0,
+							   AP_HAL::millis()// irq_state.last_reading_ms
+							   );
 
     // restore interrupts
     hal.scheduler->restore_interrupts(irqstate);
