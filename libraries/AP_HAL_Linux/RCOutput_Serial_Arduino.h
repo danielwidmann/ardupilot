@@ -30,22 +30,48 @@ struct Odrive_Axis_State {
 	float output_normalized;
 	float position;
 	float speed;
+	float current;
 };
 
 
 
 class Odrive {
 public:
-	inline void get_encoder(int axis, float* position, float* speed) { *position = _motor_states[axis].position; *speed = _motor_states[axis].speed;}
-	inline void set_output(int axis, float value) { _motor_states[axis].output_normalized = value; }
+	inline void get_encoder(int axis, float* position, float* speed) {
+		*position = _motor_states[axis].position;
+		*speed = _motor_states[axis].speed;
+	}
+	inline void set_output(int axis, float value) {
+		_motor_states[axis].output_normalized = value;
+	}
+	inline float get_voltage() {
+		return bus_voltage;
+	}
+	inline float get_current() {
+		return _motor_states[0].current + _motor_states[1].current;
+	}
+
+
+
 	void update();
+
+	void init();
+
+	void run();
+
+
 	//void init();
 
 private:
 	struct Odrive_Axis_State _motor_states[2];
 
+	float bus_voltage;
+
 	void enable();
 	void disable();
+
+	pthread_t _thread;
+	static void *_control_thread(void *arg);
 };
 
 Odrive &get_odrive();
