@@ -27,7 +27,7 @@ private:
 };
 
 struct Odrive_Axis_State {
-	float output;
+	float output_normalized;
 	float position;
 	float speed;
 };
@@ -37,7 +37,7 @@ struct Odrive_Axis_State {
 class Odrive {
 public:
 	inline void get_encoder(int axis, float* position, float* speed) { *position = _motor_states[axis].position; *speed = _motor_states[axis].speed;}
-	inline void set_output(int axis, float value) { _motor_states[axis].output = value; }
+	inline void set_output(int axis, float value) { _motor_states[axis].output_normalized = value; }
 	void update();
 	//void init();
 

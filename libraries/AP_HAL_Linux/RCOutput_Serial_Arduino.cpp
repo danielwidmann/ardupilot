@@ -145,6 +145,11 @@ void RCOutput_Serial_Arduino::write(uint8_t ch, uint16_t period_us) {
 		get_odrive().set_output(0, normalized);
 	}
 
+	if(ch == 2) {
+		float normalized = (period_us - 1500) / 400.0;
+		get_odrive().set_output(1, normalized);
+	}
+
 	static int counter = 0;
 
 	if (counter++ > 8) {
@@ -180,9 +185,12 @@ void Odrive::enable() {
 	hal.uartF->printf("\n");
 	hal.uartF->printf("w axis0.motor.error 0\n");
 	hal.uartF->printf("w axis0.error 0\n");
+	hal.uartF->printf("w axis1.motor.error 0\n");
+	hal.uartF->printf("w axis1.error 0\n");
 
 	// start closed loop controlodrv0.axis0.error
 	hal.uartF->printf("w axis0.requested_state 8\n");
+	hal.uartF->printf("w axis1.requested_state 8\n");
 }
 
 void Odrive::disable() {
@@ -191,11 +199,11 @@ void Odrive::disable() {
 
 	// go to idle mode
 	hal.uartF->printf("w axis0.requested_state 1\n");
+	hal.uartF->printf("w axis1.requested_state 1\n");
 }
 
 void Odrive::update() {
-	float normalized = _motor_states[0].output;//(period[0] - 1500) / 400.0;
-	float maxSpeed = 30;
+	float maxSpeed = 50;
 
 	int armed = hal.util->get_soft_armed() ? 1 : 0;
 	static int lastArmed = 2;
@@ -210,7 +218,8 @@ void Odrive::update() {
 	lastArmed = armed;
 
 	// update motor speeds
-	hal.uartF->printf("v 0 %f\n", normalized * maxSpeed);
+	hal.uartF->printf("v 0 %f\n", _motor_states[0].output_normalized * maxSpeed);
+	hal.uartF->printf("v 1 %f\n", _motor_states[1].output_normalized * maxSpeed);
 
 	//period[2]
 
@@ -247,7 +256,7 @@ void Odrive::update() {
 
 	if (counter++ > 100) {
 		counter = 0;
-		printf("v 0 %f\n", normalized * maxSpeed);
+		printf("v %f %f\n", _motor_states[0].output_normalized * maxSpeed, _motor_states[1].output_normalized * maxSpeed);
 		printf("%s %f %f\n", buffer, pos, speed);
 	}
 
