@@ -86,28 +86,28 @@ void Rover::update_wheel_encoder()
     // in case where wheel hasn't moved, count = 0 (cap the delta time at 50ms - or system time)
     //     use system clock of last update instead of time of last ping
     const float system_dt = (now - wheel_encoder_last_ekf_update_ms) / 1000.0f;
-    for (uint8_t i = 0; i < g2.wheel_encoder.num_sensors(); i++) {
+    for (uint8_t sensor_idx = 0; sensor_idx < g2.wheel_encoder.num_sensors(); sensor_idx++) {
         // calculate angular change (in radians)
-        const float curr_angle_rad = g2.wheel_encoder.get_delta_angle(i);
-        const float delta_angle = curr_angle_rad - wheel_encoder_last_angle_rad[i];
-        wheel_encoder_last_angle_rad[i] = curr_angle_rad;
+        const float curr_angle_rad = g2.wheel_encoder.get_delta_angle(sensor_idx);
+        const float delta_angle = curr_angle_rad - wheel_encoder_last_angle_rad[sensor_idx];
+        wheel_encoder_last_angle_rad[sensor_idx] = curr_angle_rad;
 
         // save cumulative distances at current time (in meters)
-        wheel_encoder_last_distance_m[i] = g2.wheel_encoder.get_distance(i);
+        wheel_encoder_last_distance_m[sensor_idx] = g2.wheel_encoder.get_distance(sensor_idx);
 
         // calculate delta time
         float delta_time;
-        const uint32_t latest_sensor_update_ms = g2.wheel_encoder.get_last_reading_ms(i);
-        const uint32_t sensor_diff_ms = latest_sensor_update_ms - wheel_encoder_last_update_ms[i];
+        const uint32_t latest_sensor_update_ms = g2.wheel_encoder.get_last_reading_ms(sensor_idx);
+        const uint32_t sensor_diff_ms = latest_sensor_update_ms - wheel_encoder_last_update_ms[sensor_idx];
 
         // if we have not received any sensor updates, or time difference is too high then use time since last update to the ekf
         // check for old or insane sensor update times
         if (sensor_diff_ms == 0 || sensor_diff_ms > 100) {
             delta_time = system_dt;
-            wheel_encoder_last_update_ms[i] = wheel_encoder_last_ekf_update_ms;
+            wheel_encoder_last_update_ms[sensor_idx] = wheel_encoder_last_ekf_update_ms;
         } else {
             delta_time = sensor_diff_ms / 1000.0f;
-            wheel_encoder_last_update_ms[i] = latest_sensor_update_ms;
+            wheel_encoder_last_update_ms[sensor_idx] = latest_sensor_update_ms;
         }
 
         /* delAng is the measured change in angular position from the previous measurement where a positive rotation is produced by forward motion of the vehicle (rad)
@@ -115,7 +115,7 @@ void Rover::update_wheel_encoder()
          * timeStamp_ms is the time when the rotation was last measured (msec)
          * posOffset is the XYZ body frame position of the wheel hub (m)
          */
-        EKF3.writeWheelOdom(delta_angle, delta_time, wheel_encoder_last_update_ms[i], g2.wheel_encoder.get_pos_offset(i), g2.wheel_encoder.get_wheel_radius(i));
+        EKF3.writeWheelOdom(delta_angle, delta_time, wheel_encoder_last_update_ms[sensor_idx], g2.wheel_encoder.get_pos_offset(sensor_idx), g2.wheel_encoder.get_wheel_radius(sensor_idx));
     }
 
     // record system time update for next iteration
