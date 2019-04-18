@@ -62,7 +62,7 @@ uint32_t GCS_Rover::custom_mode() const
 
 MAV_STATE GCS_MAVLINK_Rover::system_status() const
 {
-    if ((rover.failsafe.triggered != 0) || rover.failsafe.ekf) {
+    if (rover.failsafe.triggered != 0) {
         return MAV_STATE_CRITICAL;
     }
     if (rover.control_mode == &rover.mode_initializing) {
