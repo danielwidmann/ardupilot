@@ -194,6 +194,8 @@ void AP_L1_Control::_prevent_indecision(float &Nu)
     }
 }
 
+#include "stdio.h"
+
 // update L1 control for waypoint navigation
 void AP_L1_Control::update_waypoint(const struct Location &prev_WP, const struct Location &next_WP, float dist_min)
 {
@@ -228,10 +230,10 @@ void AP_L1_Control::update_waypoint(const struct Location &prev_WP, const struct
 
     //Calculate groundspeed
     float groundSpeed = _groundspeed_vector.length();
-    if (groundSpeed < 0.1f) {
+    if (groundSpeed < 0.3f) {
         // use a small ground speed vector in the right direction,
         // allowing us to use the compass heading at zero GPS velocity
-        groundSpeed = 0.1f;
+        groundSpeed = 0.3f;
         _groundspeed_vector = Vector2f(cosf(get_yaw()), sinf(get_yaw())) * groundSpeed;
     }
 
@@ -267,6 +269,8 @@ void AP_L1_Control::update_waypoint(const struct Location &prev_WP, const struct
     float alongTrackDist = A_air * AB;
     if (WP_A_dist > _L1_dist && alongTrackDist/MAX(WP_A_dist, 1.0f) < -0.7071f)
     {
+    	printf("back to a\n");
+
         //Calc Nu to fly To WP A
         Vector2f A_air_unit = (A_air).normalized(); // Unit vector from WP A to aircraft
         xtrackVel = _groundspeed_vector % (-A_air_unit); // Velocity across line

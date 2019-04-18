@@ -222,6 +222,8 @@ void NavEKF3_core::realignYawGPS()
 *                   FUSE MEASURED_DATA                  *
 ********************************************************/
 
+#pragma GCC optimize ("O0")
+
 // select fusion of magnetometer data
 void NavEKF3_core::SelectMagFusion()
 {
@@ -866,8 +868,8 @@ void NavEKF3_core::fuseEulerYaw()
 
     float speed_x = gpsDataDelayed.vel.x;
     float speed_y = gpsDataDelayed.vel.y;
-    float speed = sqrtf(sq(speed_x) + sq(speed_y));
-    float angle = atan2f(speed_y, speed_x);
+    float gps_speed = sqrtf(sq(speed_x) + sq(speed_y));
+    float gps_angle = atan2f(speed_y, speed_x);
 
 
     float ground = sqrtf(sq(stateStruct.velocity.x) + sq(stateStruct.velocity.y));
@@ -880,17 +882,36 @@ void NavEKF3_core::fuseEulerYaw()
 
     if(diff > (M_PI/2.0f)) {
     	// we are reversing
-    	angle = wrap_PI(angle + M_PI);
+    	gps_angle = wrap_PI(gps_angle + M_PI);
 
     }
 
+    static float last_yaw = 1000.0f;
+    static int print_i = 0;
 
-    if(speed > 0.15 && ground > 0.15) {
-    	printf("s: %f gs: %f a: %f p: %f , ga: %f, i: %f\n", speed, ground, angle, predicted_yaw, diff, wrap_PI(predicted_yaw - angle));
-    	measured_yaw = angle;
-    } else {
+
+    if(gps_speed > 0.15 && ground > 0.15) {
+    	//printf("s: %f gs: %f a: %f p: %f , ga: %f, i: %f\n", gps_speed, ground, gps_angle, predicted_yaw, diff, wrap_PI(predicted_yaw - gps_angle));
+    	measured_yaw = gps_angle;
+    	last_yaw = predicted_yaw;
+    }
+//    else if(gps_speed < 0.2 && ground < 0.05 && last_yaw < 900) {
+//    	// assume we are standing still
+//    	if(print_i++ % 50 == 0){
+//			printf("still s: %f gs: %f a: %f p: %f , ga: %f, i: %f\n", gps_speed, ground, last_yaw, predicted_yaw, diff, wrap_PI(predicted_yaw - last_yaw));
+//    	}
+//    	measured_yaw = last_yaw;
+//    	last_yaw = measured_yaw;
+//    }
+    else {
     	measured_yaw = predicted_yaw;
+    	last_yaw = predicted_yaw;
     }
+
+
+
+    (void) last_yaw;
+
 
     // Calculate the innovation
     float innovation = wrap_PI(predicted_yaw - measured_yaw);

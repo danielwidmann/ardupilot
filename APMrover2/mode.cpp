@@ -415,6 +415,8 @@ float Mode::calc_reduced_speed_for_turn_or_distance(float desired_speed)
     return speed_max;
 }
 
+#include "stdio.h"
+
 // calculate the lateral acceleration target to cause the vehicle to drive along the path from origin to destination
 // this function updates the _yaw_error_cd value
 void Mode::calc_steering_to_waypoint(const struct Location &origin, const struct Location &destination, bool reversed)
@@ -430,9 +432,11 @@ void Mode::calc_steering_to_waypoint(const struct Location &origin, const struct
     float desired_lat_accel = rover.nav_controller->lateral_acceleration();
     float desired_heading = rover.nav_controller->target_bearing_cd();
     if (reversed) {
+    	printf("reverserd\n");
         desired_heading = wrap_360_cd(desired_heading + 18000);
         desired_lat_accel *= -1.0f;
     }
+
     _yaw_error_cd = wrap_180_cd(desired_heading - ahrs.yaw_sensor);
 
     if (rover.use_pivot_steering(_yaw_error_cd)) {

@@ -580,7 +580,7 @@ Vector2f AP_AHRS_NavEKF::groundspeed_vector(void)
 
 	//EKF3.core[0].
 
-    printf("ekf: %d, healthy: %d, filter faults: %d, fly forwd %d, use gps: %d\n", active_EKF_type(), EKF3.healthy(), (int)ekf3_faults, _flags.fly_forward, filt_state.flags.using_gps);
+    //printf("ekf: %d, healthy: %d, filter faults: %d, fly forwd %d, use gps: %d\n", active_EKF_type(), EKF3.healthy(), (int)ekf3_faults, _flags.fly_forward, filt_state.flags.using_gps);
 
     switch (active_EKF_type()) {
     case EKF_TYPE_NONE:
