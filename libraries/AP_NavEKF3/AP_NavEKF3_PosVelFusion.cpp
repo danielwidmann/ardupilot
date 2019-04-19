@@ -1528,6 +1528,11 @@ void NavEKF3_core::FuseBodyVel()
 
                 // correct the state vector
                 for (uint8_t j= 0; j<=stateIndexLim; j++) {
+
+                	// skip gyro bias update
+//                	if(j == 10 || j == 11 || j == 12 )
+//                		continue;
+
                     statesArray[j] = statesArray[j] - Kfusion[j] * innovBodyVel[obsIndex];
                 }
                 stateStruct.quat.normalize();

@@ -403,7 +403,8 @@ void Odrive::update() {
 
 	read_feedback(0, &_motor_states[0].position, &_motor_states[0].speed);
 	read_feedback(1, &_motor_states[1].position, &_motor_states[1].speed);
-
+	_motor_states[0].last_update = AP_HAL::millis();
+	_motor_states[1].last_update = AP_HAL::millis();
 
 
 	//bus_voltage = read_param("vbus_voltage");

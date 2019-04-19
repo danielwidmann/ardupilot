@@ -83,14 +83,15 @@ void AP_WheelEncoder_Quadrature::update(void)
 
 
     	float pos, speed;
-    	get_odrive().get_encoder(0, &pos, &speed);
+    	get_odrive().get_encoder(_state.instance, &pos, &speed);
+    	uint32_t last_update = get_odrive().get_last_update_time(_state.instance);
 
     	//printf("p: %f\n", pos);
 
         copy_state_to_frontend((int) pos,
         						0,
                                0,
-							   AP_HAL::millis()// irq_state.last_reading_ms
+							   last_update// irq_state.last_reading_ms
 							   );
 
     // restore interrupts

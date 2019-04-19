@@ -31,6 +31,7 @@ struct Odrive_Axis_State {
 	float position;
 	float speed;
 	float current;
+	uint32_t last_update;
 };
 
 
@@ -41,6 +42,8 @@ public:
 		*position = _motor_states[axis].position;
 		*speed = _motor_states[axis].speed;
 	}
+
+	inline uint32_t get_last_update_time(int axis) {return _motor_states[axis].last_update;}
 	inline void set_output(int axis, float value) {
 		_motor_states[axis].output_normalized = value;
 	}

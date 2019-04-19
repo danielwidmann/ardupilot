@@ -86,6 +86,9 @@ void Rover::ekf_check()
 // returns true if the ekf's variance are over the tolerance
 bool Rover::ekf_over_threshold()
 {
+
+	return false;
+
     // return false immediately if disabled
     if (g.fs_ekf_thresh <= 0.0f) {
         return false;
@@ -167,7 +170,7 @@ void Rover::failsafe_ekf_event()
             break;
         case FS_EFK_HOLD:
         default:
-            set_mode(mode_hold, MODE_REASON_EKF_FAILSAFE);
+            //set_mode(mode_hold, MODE_REASON_EKF_FAILSAFE);
             break;
     }
 }
